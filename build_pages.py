@@ -75,17 +75,32 @@ about_gallery_photos = [
 def make_gallery():
  slides=[]
  thumbs=[]
+ dimensions=[(1600,1200),(1067,1600),(1600,1067),(1600,1066),(1600,1066)]
  for i,(src,alt,title) in enumerate(about_gallery_photos):
-  slides.append(f'<div class="about-gallery-slide{" is-active" if i==0 else ""}" role="group" aria-roledescription="slide" aria-label="{i+1} of {len(about_gallery_photos)}" aria-hidden="{"false" if i==0 else "true"}" data-gallery-title="{title}" style="--gallery-photo:url(\'{src}\')"><img src="{src}" alt="{alt}" loading="lazy" decoding="async"></div>')
-  thumbs.append(f'<button type="button" class="about-gallery-thumb" data-gallery-to="{i}" aria-controls="about-gallery-stage" aria-label="Show photo {i+1}: {title}" aria-pressed="{"true" if i==0 else "false"}"><img src="{src}" alt="" loading="lazy" decoding="async"></button>')
- prev_svg = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>'
- next_svg = '<svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>'
+  selected = i == 0
+  slides.append(
+   f'<figure class="about-gallery-slide{" is-active" if selected else ""}" role="group" aria-roledescription="slide" aria-label="Photo {i+1} of {len(about_gallery_photos)}: {title}" aria-hidden="{"false" if selected else "true"}" data-gallery-title="{title}">'
+   f'<div class="about-gallery-photo" style="--gallery-photo:url(\'{src}\')"><img src="{src}" alt="{alt}" loading="{"eager" if selected else "lazy"}" decoding="async" width="{dimensions[i][0]}" height="{dimensions[i][1]}"></div></figure>'
+  )
+  thumbs.append(
+   f'<button type="button" class="about-gallery-thumb{" is-current" if selected else ""}" data-gallery-to="{i}" aria-controls="about-gallery-stage" aria-label="Show photo {i+1}: {title}" aria-pressed="{"true" if selected else "false"}">'
+   f'<span class="about-gallery-thumb-photo"><img src="{src}" alt="" loading="lazy" decoding="async"></span>'
+   f'<span class="about-gallery-thumb-title">{title}</span><span class="about-gallery-thumb-index">{i+1:02}</span></button>'
+  )
+ prev_svg = '<svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>'
+ next_svg = '<svg aria-hidden="true" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>'
+ pause_svg = '<svg class="about-gallery-pause-icon" aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg>'
+ play_svg = '<svg class="about-gallery-play-icon" aria-hidden="true" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m8 5 11 7-11 7z"/></svg>'
  return (
   '<section class="section alt" id="about-gallery"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">Our Gallery</span><h2>A Look At Our World.</h2></div><p class="body-copy">Moments from professional events, presentations and awards.</p></div>'
   '<div class="about-gallery reveal" data-about-gallery role="region" aria-roledescription="carousel" aria-label="Professional events and awards photo gallery">'
+  '<div class="about-gallery-layout"><div class="about-gallery-main">'
   '<div class="about-gallery-stage" id="about-gallery-stage">' + ''.join(slides) + '</div>'
-  '<div class="about-gallery-toolbar"><div class="about-gallery-meta" aria-live="off" aria-atomic="true"><span class="about-gallery-counter" data-gallery-counter>01 / 05</span><span class="about-gallery-label" data-gallery-label>Panel Discussion</span></div><div class="about-gallery-nav"><button type="button" data-gallery-toggle data-paused="false" aria-label="Pause automatic slideshow"><svg class="about-gallery-pause-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 5v14M15 5v14"/></svg><svg class="about-gallery-play-icon" aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="m8 5 11 7-11 7z"/></svg></button><button type="button" data-gallery-prev aria-controls="about-gallery-stage" aria-label="Previous photo">' + prev_svg + '</button><button type="button" data-gallery-next aria-controls="about-gallery-stage" aria-label="Next photo">' + next_svg + '</button></div></div>'
-  '<div class="about-gallery-thumbnails" aria-label="Select a gallery photo">' + ''.join(thumbs) + '</div></div></div></section>'
+  '<div class="about-gallery-footer"><div class="about-gallery-meta" aria-live="off" aria-atomic="true"><span class="about-gallery-counter" data-gallery-counter>01 <span>/ 05</span></span><span class="about-gallery-label" data-gallery-label>Panel Discussion</span></div>'
+  '<div class="about-gallery-nav"><button type="button" data-gallery-toggle data-paused="false" aria-label="Pause automatic slideshow" aria-pressed="false">' + pause_svg + play_svg + '</button>'
+  '<button type="button" data-gallery-prev aria-controls="about-gallery-stage" aria-label="Previous photo">' + prev_svg + '</button><button type="button" data-gallery-next aria-controls="about-gallery-stage" aria-label="Next photo">' + next_svg + '</button></div></div>'
+  '<div class="about-gallery-progress" aria-hidden="true"><span data-gallery-progress></span></div></div>'
+  '<div class="about-gallery-rail"><div class="about-gallery-rail-heading"><span>Select A Moment</span><span>05 Photos</span></div>' + ''.join(thumbs) + '</div></div></div></div></section>'
  )
 
 gallery_markup = make_gallery()
@@ -95,8 +110,8 @@ about=heading('About Our Firm','Accounting With A Human Perspective.','We focus 
 {gallery_markup}{cta()}'''
 about_html = doc('About Us | Trendy Tax Solutions','Learn about our practical, personal approach to tax, accounting and business advice in Hobart.',about,'about.html')
 # Only About Us loads slideshow styling/behaviour. Other pages stay unchanged.
-about_html = about_html.replace('<title>About Us | Trendy Tax Solutions</title>', '<link rel="stylesheet" href="assets/css/about-gallery.css"><title>About Us | Trendy Tax Solutions</title>', 1)
-about_html = about_html.replace('<script src="assets/js/main.js" defer></script></body>', '<script src="assets/js/main.js" defer></script><script src="assets/js/about-gallery.js" defer></script></body>', 1)
+about_html = about_html.replace('<title>About Us | Trendy Tax Solutions</title>', '<link rel="stylesheet" href="assets/css/about-gallery.css?v=2"><title>About Us | Trendy Tax Solutions</title>', 1)
+about_html = about_html.replace('<script src="assets/js/main.js" defer></script></body>', '<script src="assets/js/main.js" defer></script><script src="assets/js/about-gallery.js?v=2" defer></script></body>', 1)
 (root/'about.html').write_text(about_html,encoding='utf-8')
 # SERVICES
 srv=heading('Our Expertise','Services That Keep You Moving.','From everyday compliance to bigger decisions, we make financial matters easier to navigate.')+f'''<section class="section"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">How We Can Help</span><h2>What We Do, At A Glance.</h2></div><p class="body-copy">Choose the service that fits what you need. Our team can help you understand your next step.</p></div><div class="services-list">{''.join(f'<a href="contact.html?service={i}" class="service-row reveal"><div><h3>{escape(name)}</h3><p>{escape(desc)}</p></div><span class="service-arrow">{diag}</span></a>' for i,(name,desc) in enumerate(services))}</div><p class="service-list-footer">Not sure which service you need? <a href="contact.html">Tell Us About Your Enquiry</a>.</p></div></section>

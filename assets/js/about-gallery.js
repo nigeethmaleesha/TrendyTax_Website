@@ -1,98 +1,103 @@
-/* Interactive About Us photo slideshow; no dependencies or effects on other pages. */
+/* Scoped About Us slideshow. Autoplay + explicit pause, keyboard, swipe and thumbnails. */
 (() => {
   'use strict';
   const gallery = document.querySelector('[data-about-gallery]');
   if (!gallery) return;
-
+  const stage = gallery.querySelector('.about-gallery-stage');
   const slides = [...gallery.querySelectorAll('.about-gallery-slide')];
-  const thumbnails = [...gallery.querySelectorAll('[data-gallery-to]')];
+  const thumbs = [...gallery.querySelectorAll('[data-gallery-to]')];
   const counter = gallery.querySelector('[data-gallery-counter]');
   const label = gallery.querySelector('[data-gallery-label]');
+  const toggle = gallery.querySelector('[data-gallery-toggle]');
   const prev = gallery.querySelector('[data-gallery-prev]');
   const next = gallery.querySelector('[data-gallery-next]');
-  const toggle = gallery.querySelector('[data-gallery-toggle]');
-  if (!slides.length || !prev || !next) return;
+  const progress = gallery.querySelector('[data-gallery-progress]');
+  if (!stage || !slides.length || !toggle || !prev || !next) return;
 
-  let current = 0;
-  let timer = null;
-  let onscreen = !('IntersectionObserver' in window);
-  let hovering = false;
-  let focused = false;
-  let userPaused = false;
-  let touchX = null;
-  let touchY = null;
+  const duration = 5500;
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let index = 0;
+  let paused = reducedMotion;
+  let inView = !('IntersectionObserver' in window);
+  let hovered = false;
+  let timer = null;
+  let startX = null;
+  let startY = null;
 
-  function show(index, userInitiated = false) {
-    current = (index + slides.length) % slides.length;
+  function display(target, announce = false) {
+    index = ((target % slides.length) + slides.length) % slides.length;
     slides.forEach((slide, i) => {
-      const selected = i === current;
-      slide.classList.toggle('is-active', selected);
-      slide.setAttribute('aria-hidden', String(!selected));
+      const active = i === index;
+      slide.classList.toggle('is-active', active);
+      slide.setAttribute('aria-hidden', String(!active));
     });
-    thumbnails.forEach((button, i) => button.setAttribute('aria-pressed', String(i === current)));
-    counter.textContent = `${String(current + 1).padStart(2, '0')} / ${String(slides.length).padStart(2, '0')}`;
-    label.textContent = slides[current].dataset.galleryTitle || '';
-    counter.parentElement.setAttribute('aria-live', userInitiated ? 'polite' : 'off');
+    thumbs.forEach((thumb, i) => {
+      thumb.classList.toggle('is-current', i === index);
+      thumb.setAttribute('aria-pressed', String(i === index));
+    });
+    counter.innerHTML = `${String(index + 1).padStart(2, '0')} <span>/ ${String(slides.length).padStart(2, '0')}</span>`;
+    label.textContent = slides[index].dataset.galleryTitle || '';
+    if (announce) {
+      const meta = gallery.querySelector('.about-gallery-meta');
+      meta.setAttribute('aria-live', 'polite');
+    } else {
+      gallery.querySelector('.about-gallery-meta').setAttribute('aria-live', 'off');
+    }
   }
 
-  function stop() {
-    if (timer !== null) window.clearInterval(timer);
+  function cancel() {
+    if (timer !== null) window.clearTimeout(timer);
     timer = null;
+    gallery.classList.remove('is-playing');
   }
-  function play() {
-    stop();
-    if (reducedMotion || userPaused || hovering || focused || !onscreen || document.hidden || slides.length < 2) return;
-    timer = window.setInterval(() => show(current + 1), 6000);
+  function schedule() {
+    cancel();
+    if (paused || hovered || !inView || document.hidden || slides.length < 2) return;
+    // Reset the decorative progress bar for each complete 5.5-second interval.
+    if (progress) { progress.style.animation = 'none'; void progress.offsetWidth; progress.style.animation = ''; }
+    gallery.classList.add('is-playing');
+    timer = window.setTimeout(() => { display(index + 1); schedule(); }, duration);
   }
-  function navigate(index) {
-    show(index, true);
-    play();
+  function go(target) { display(target, true); schedule(); }
+  function syncToggle() {
+    toggle.setAttribute('data-paused', String(paused));
+    toggle.setAttribute('aria-pressed', String(paused));
+    toggle.setAttribute('aria-label', paused ? 'Play automatic slideshow' : 'Pause automatic slideshow');
   }
-
-  toggle?.addEventListener('click', () => {
-    userPaused = !userPaused;
-    toggle.dataset.paused = String(userPaused);
-    toggle.setAttribute('aria-label', userPaused ? 'Resume automatic slideshow' : 'Pause automatic slideshow');
-    play();
-  });
-  prev.addEventListener('click', () => navigate(current - 1));
-  next.addEventListener('click', () => navigate(current + 1));
-  thumbnails.forEach((button, i) => button.addEventListener('click', () => navigate(i)));
+  prev.addEventListener('click', () => go(index - 1));
+  next.addEventListener('click', () => go(index + 1));
+  thumbs.forEach((button,i) => button.addEventListener('click', () => go(i)));
+  toggle.addEventListener('click', () => { paused = !paused; syncToggle(); schedule(); });
+  // Arrow-key navigation when users tab to the slideshow controls.
   gallery.addEventListener('keydown', event => {
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
-      event.preventDefault();
-      navigate(current + (event.key === 'ArrowRight' ? 1 : -1));
-    }
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    if (!gallery.contains(document.activeElement)) return;
+    event.preventDefault();
+    go(index + (event.key === 'ArrowRight' ? 1 : -1));
   });
-  gallery.addEventListener('mouseenter', () => { hovering = true; stop(); });
-  gallery.addEventListener('mouseleave', () => { hovering = false; play(); });
-  gallery.addEventListener('focusin', () => { focused = true; stop(); });
-  gallery.addEventListener('focusout', event => {
-    if (!gallery.contains(event.relatedTarget)) { focused = false; play(); }
-  });
-  gallery.addEventListener('touchstart', event => {
+  stage.addEventListener('mouseenter', () => { hovered = true; cancel(); });
+  stage.addEventListener('mouseleave', () => { hovered = false; schedule(); });
+  stage.addEventListener('touchstart', event => {
     if (event.touches.length !== 1) return;
-    touchX = event.touches[0].clientX;
-    touchY = event.touches[0].clientY;
-  }, { passive: true });
-  gallery.addEventListener('touchend', event => {
-    if (touchX === null || !event.changedTouches.length) return;
-    const deltaX = event.changedTouches[0].clientX - touchX;
-    const deltaY = event.changedTouches[0].clientY - touchY;
-    touchX = null;
-    touchY = null;
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.4) {
-      navigate(current + (deltaX < 0 ? 1 : -1));
-    }
-  }, { passive: true });
-  document.addEventListener('visibilitychange', play);
+    startX = event.touches[0].clientX;
+    startY = event.touches[0].clientY;
+  }, {passive:true});
+  stage.addEventListener('touchend', event => {
+    if (startX === null || event.changedTouches.length === 0) return;
+    const dx = event.changedTouches[0].clientX - startX;
+    const dy = event.changedTouches[0].clientY - startY;
+    startX = null;
+    startY = null;
+    if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy) * 1.35) go(index + (dx < 0 ? 1 : -1));
+  }, {passive:true});
+  document.addEventListener('visibilitychange', schedule);
   if ('IntersectionObserver' in window) {
-    const observer = new IntersectionObserver(entries => {
-      onscreen = entries[0].isIntersecting;
-      play();
-    }, { threshold: 0.2 });
-    observer.observe(gallery);
-  } else play();
-  show(0);
+    new IntersectionObserver(entries => {
+      inView = entries[0].isIntersecting;
+      schedule();
+    }, {threshold:.15}).observe(stage);
+  }
+  syncToggle();
+  display(0);
+  schedule();
 })();
