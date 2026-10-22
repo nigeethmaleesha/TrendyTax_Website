@@ -59,3 +59,7 @@ Real-photo images are loaded directly from `images.unsplash.com`, **not AI-gener
 
 ## Editing Content
 Pages are generated from `build_pages.py` so shared navigation and footer stay consistent. Modify the templates and run `python build_pages.py`, or edit the HTML files directly if preferred. This build script is only for local authoring; neither Vercel nor the PHP host needs Python to serve the prebuilt site.
+
+## Frontend chatbot preview (October 2026)
+
+A floating **Trendy Tax Assistant** UI is available on all nine pages, including Insights articles. It has welcome messages, four useful topic choices, guided replies, service/contact links, reset/close controls and responsive mobile styling. It is **frontend-only**: free-text messaging and backend/API integration are intentionally not enabled. No visitor chat data is collected or sent. See [`CHATBOT-IMPLEMENTATION.md`](CHATBOT-IMPLEMENTATION.md) for details, file list and setup.

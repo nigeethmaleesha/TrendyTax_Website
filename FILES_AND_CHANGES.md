@@ -42,3 +42,15 @@ trendy_tax_clean_site/
 
 ### Outstanding Before Live Production
 Backend sending/storage, newsletter service, privacy policy, article review, team biography, awards/membership verification, final image choices.
+
+---
+
+## 22 October 2026 — Frontend Chatbot Preview
+
+**Added:** `assets/css/chatbot.css`, `assets/js/chatbot.js`, `CHATBOT-IMPLEMENTATION.md`.
+
+**Updated:** `build_pages.py`, `README.md`, `FILES_AND_CHANGES.md`, and all nine HTML pages (`index.html`, `about.html`, `services.html`, `insights.html`, `contact.html`, `privacy.html`, `insights/bookkeeping.html`, `insights/cash-flow.html`, `insights/tax-readiness.html`).
+
+**Unaffected:** Existing content, layout, navigation, contact enquiry behaviour, article filtering, galleries, images and client details.
+
+**Chat limitations:** Prewritten frontend dialogue only; no APIs, backend, live messaging or data submission.
