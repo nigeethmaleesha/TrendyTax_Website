@@ -38,3 +38,29 @@
 @media(max-width:720px){.about-gallery{padding:16px;border-radius:18px}.about-gallery-layout{grid-template-columns:minmax(0,1fr);gap:16px}.about-gallery-stage{height:clamp(270px,71vw,440px);border-radius:12px}.about-gallery-rail{display:grid;grid-auto-columns:200px;grid-auto-flow:column;overflow-x:auto;overscroll-behavior-x:contain;padding:4px 2px 6px;scroll-snap-type:x proximity;scrollbar-width:thin;gap:10px}.about-gallery-rail-heading{display:none}.about-gallery-thumb{min-height:80px;scroll-snap-align:start;grid-template-columns:70px minmax(0,1fr);padding:8px}.about-gallery-thumb-photo{width:70px;height:64px}.about-gallery-footer{padding-top:14px}.about-gallery-label{font-size:16px}}
 @media(max-width:430px){.about-gallery-stage{height:clamp(250px,82vw,335px)}.about-gallery-nav{gap:6px}.about-gallery-nav button{height:36px;width:36px}.about-gallery-nav button[data-gallery-toggle]{margin-right:1px}.about-gallery-label{font-size:15px}}
 @media(prefers-reduced-motion:reduce){.about-gallery-slide,.about-gallery-thumb,.about-gallery-nav button{transition:none!important}.about-gallery-thumb:hover{transform:none}.about-gallery-nav button:hover{transform:none}.about-gallery.is-playing .about-gallery-progress>span{animation:none}}
+
+/* Reduce the About photo gallery to a single desktop viewport, keeping all five thumbnails visible. */
+@media(min-width:951px){
+ #about-gallery{padding:38px 0 44px}
+ #about-gallery .section-head{margin-bottom:21px}
+ #about-gallery .section-head h2{margin-top:11px}
+ .about-gallery{margin-top:0;padding:16px}
+ .about-gallery-layout{gap:18px}
+ .about-gallery-stage{height:clamp(280px,39vh,358px)}
+ .about-gallery-photo{padding:12px}
+ .about-gallery-footer{padding-top:10px}
+ .about-gallery-progress{margin-top:9px}
+ .about-gallery-rail{gap:7px}
+ .about-gallery-rail-heading{min-height:20px;padding:0 4px 4px}
+ .about-gallery-thumb{min-height:62px;padding:5px 7px;grid-template-columns:82px minmax(0,1fr);gap:10px;border-radius:9px}
+ .about-gallery-thumb-photo{width:82px;height:50px;border-radius:5px}
+ .about-gallery-thumb-title{font-size:12px}
+}
+@media(min-width:721px) and (max-width:950px){
+ #about-gallery{padding:48px 0}
+ #about-gallery .section-head{margin-bottom:22px}
+ .about-gallery-stage{height:clamp(270px,40vh,340px)}
+ .about-gallery-thumb{min-height:65px;padding:5px}
+ .about-gallery-rail{gap:7px}
+ .about-gallery-thumb-photo{height:52px}
+}
