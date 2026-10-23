@@ -34,15 +34,22 @@
 .founder-portrait img{width:100%;height:100%;object-fit:cover;object-position:50% 20%}
 .founder-copy h3{font-size:24px;margin:12px 0 13px}
 .founder-copy .body-copy{max-width:540px;margin-bottom:0}
-/* Contact FAQ on the left, Google Maps on the right. */
-.faq-map-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:40px;align-items:start}
-.faq-map-grid .faq{max-width:none;width:100%;margin:0}
-.contact-map{background:white;border:1px solid var(--line);overflow:hidden;min-width:0}
-.contact-map iframe{display:block;width:100%;height:340px;border:0;background:#e8edea}
-.contact-map-caption{padding:18px 20px;display:flex;flex-direction:column;gap:12px}
-.contact-map-caption strong{display:block;font:700 14px Manrope,Arial,sans-serif;color:var(--ink);margin-bottom:3px}
+/* Contact location + FAQs: reverse the upper contact section's white/warm split. */
+.section.alt.contact-faq-section{background:var(--paper)}
+.faq-map-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;align-items:stretch}
+/* Left panel repeats the warm background used on the enquiry form above. */
+.contact-faq-section .contact-map{display:flex;flex-direction:column;min-width:0;background:var(--warm);border:1px solid var(--line);padding:22px;box-shadow:0 12px 34px rgba(24,49,67,.035);overflow:hidden}
+.contact-faq-section .contact-map iframe{display:block;flex:none;width:100%;height:350px;border:1px solid #e3e5e0;background:#e8edea}
+.contact-map-caption{padding:20px 2px 0;display:flex;flex-direction:column;gap:14px}
+.contact-map-caption strong{display:block;font:700 14px Manrope,Arial,sans-serif;color:var(--ink);margin-bottom:4px}
 .contact-map-caption span{display:block;font-size:12px;color:var(--muted)}
 .contact-map-caption a{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:700;color:var(--teal);text-decoration:underline;text-underline-offset:3px}
 .contact-map-caption svg{width:15px;height:15px}
-@media(max-width:800px){.faq-map-grid{gap:22px;grid-template-columns:1fr}.contact-map iframe{height:310px}.founder-spotlight{margin-top:45px}}
-@media(max-width:560px){.section.page-start{padding-top:45px}.home-services .service-card{min-height:155px;padding:23px}.founder-spotlight{grid-template-columns:1fr;gap:18px;padding:20px}.founder-portrait{width:150px;height:172px}.founder-copy h3{font-size:21px}.contact-map iframe{height:285px}}
+/* Right panel is white, matching the contact details column above. */
+.contact-faq-card{min-width:0;background:var(--paper);border:1px solid var(--line);padding:34px 32px 32px;box-shadow:0 12px 34px rgba(24,49,67,.035)}
+.contact-faq-card .section-head{margin-bottom:25px}
+.contact-faq-card .section-head h2{font-size:clamp(27px,2.5vw,35px);line-height:1.2;max-width:none;margin-top:15px}
+.contact-faq-card .faq{max-width:none;width:100%;margin:0}
+.contact-faq-card .faq-item button{padding:19px 0;line-height:1.5}
+@media(max-width:800px){.faq-map-grid{gap:22px;grid-template-columns:1fr}.contact-faq-section .contact-map iframe{height:310px}.contact-faq-card{padding:30px 26px}.founder-spotlight{margin-top:45px}}
+@media(max-width:560px){.section.page-start{padding-top:45px}.home-services .service-card{min-height:155px;padding:23px}.founder-spotlight{grid-template-columns:1fr;gap:18px;padding:20px}.founder-portrait{width:150px;height:172px}.founder-copy h3{font-size:21px}.contact-faq-section .contact-map iframe{height:285px}.contact-faq-section .contact-map{padding:16px}.contact-faq-card{padding:26px 20px}.contact-faq-card .section-head h2{font-size:27px}}
