@@ -60,6 +60,13 @@ articles=[
 # HOME
 home=f'''<section class="hero"><div class="shell"><div class="hero-content reveal"><span class="eyebrow">Accounting & Tax Advisory · Hobart</span><h1>Clear Numbers.<br><em>Confident Decisions.</em></h1><p class="lead">Practical tax, accounting and business advice that helps you move forward with confidence.</p><div class="hero-actions"><a class="btn btn-primary" href="services.html">Explore Our Services {diag}</a><a class="btn btn-outline" href="contact.html">Let's Talk {arrow}</a></div><div class="hero-note"><span></span>Professional. Personal. Straightforward.</div></div><div class="hero-image reveal delay1"><div class="image-frame">{image(photos['hero'],'Naturally lit contemporary office with meeting chairs', 'eager')}</div><div class="hero-caption"><strong>Based In Hobart, Tasmania</strong>Thoughtful advice for business owners and individuals.</div></div></div></section>
 <div class="trustbar"><div class="shell"><span class="trust-item"><i></i>Tax & Compliance</span><span class="trust-item"><i></i>Accounting & Bookkeeping</span><span class="trust-item"><i></i>Business Advisory</span><span class="trust-item"><i></i>Hobart, Australia</span></div></div>
+<section class="home-video-section" id="hobart-video" aria-label="Hobart waterfront film">
+ <div class="home-video-frame home-video-frame--solo" data-hobart-video data-fallback-drive="https://drive.google.com/file/d/1W0QRiNsIpTZL0ui8Kmro1rOQlYNdckj2/preview">
+  <video class="home-video-motion" autoplay muted loop playsinline preload="auto" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" poster="assets/img/hobart-video-preview.webp" tabindex="-1" aria-hidden="true">
+   <source src="assets/video/hobart-loop.mp4" type="video/mp4">
+  </video>
+ </div>
+</section>
 <section class="section credentials-section" id="our-credentials"><div class="shell">
  <div class="section-head reveal"><div><span class="eyebrow">Professional Credentials &amp; Partnerships</span><h2>Our Professional Connections.</h2></div><p class="body-copy">A selection of credentials and professional marks supplied by Trendy Tax Solutions.</p></div>
  <div class="credentials-grid">
@@ -143,8 +150,8 @@ about_html = about_html.replace('<script src="assets/js/main.js" defer></script>
 recognition_items = [
  ('award-young-ca-2025.jpg','Young Chartered Accountant of the Year','2025 · Tasmania winner'),
  ('award-mentor-2025.jpg','Mentor of the Year','Australian Accounting Awards · 2025 winner'),
- ('award-finalist-2024.jpg','Not-for-Profit Accountant of the Year','Australian Accounting Awards · 2024 finalist'),
- ('award-finalist-2025.jpg','Not-for-Profit Accountant of the Year','Australian Accounting Awards · 2025 finalist'),
+ ('award-finalist-2024.jpg','Australian Accounting Awards','2024 finalist'),
+ ('award-finalist-2025.jpg','Australian Accounting Awards','2025 finalist'),
  ('cyber-security-badge.jpg','Practice Protect','Cyber Security Best Practice'),
 ]
 awards_cards=''.join(

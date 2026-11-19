@@ -212,3 +212,25 @@
  .about-founder-formal-frame img{object-position:center center}
  .about-achievements-cta{margin-top:28px;padding-top:22px}
 }
+
+
+/* Phase 4 — light, on-demand Google Drive video: no large file is hosted on Vercel. */
+/* Phase 5: video-only presentation; muted video enables browser autoplay. */
+/* Phase 6: full-bleed cinematic video – no shell gutters, text or player chrome. */
+.home-video-section{position:relative;width:100%;margin:0;padding:0;overflow:hidden;background:#092233}
+.home-video-frame--solo{position:relative;width:100%;max-width:none;min-width:0;height:clamp(440px, calc(100svh - var(--header)), 1040px);margin:0;aspect-ratio:auto;overflow:hidden;border:0;border-radius:0;box-shadow:none;background:#0d2639 url('../img/hobart-video-preview.webp') center/cover no-repeat}
+.home-video-frame--solo .home-video-motion{display:block;width:100%;height:100%;position:absolute;inset:0;object-fit:cover;object-position:center center;background:transparent;opacity:0;transition:opacity .25s ease;pointer-events:none}
+.home-video-frame--solo .home-video-motion.is-playing{opacity:1}
+/* Google Drive is a temporary fallback. Its player chrome is cross-origin and cannot be removed by our CSS.
+   Clip its perimeter and disable pointer interaction to reduce visible controls while retaining playback. */
+/* Drive uses an independent 16:9 contain-style player that letterboxes wide/tall banners.
+   Our JS calculates the extra overscan based on the real section aspect ratio.
+   The extra 13% beyond "cover" masks the bottom playback timeline in the fallback.
+   This is a visual crop, not a removal of Google's cross-origin controls. */
+.home-video-drive-crop{position:absolute;inset:0;overflow:hidden;background:transparent;pointer-events:none;isolation:isolate}
+.home-video-drive-crop iframe{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;pointer-events:none;transform:scale(var(--drive-cover-scale,1.62));transform-origin:center center;will-change:transform}
+@media(max-width:800px){.home-video-frame--solo{height:clamp(320px,70svh,700px)}}
+@media(max-width:560px){.home-video-frame--solo{height:clamp(280px,62svh,560px)}}
+@media(prefers-reduced-motion:reduce){.home-video-frame--solo .home-video-motion{transition:none}}
+
+}

@@ -6,6 +6,75 @@ if(menu&&nav){menu.addEventListener('click',()=>{const open=menu.getAttribute('a
 function scrolled(){header?.classList.toggle('scrolled',window.scrollY>10)}scrolled();window.addEventListener('scroll',scrolled,{passive:true});
 $$('[data-year]').forEach(x=>x.textContent=String(new Date().getFullYear()));
 if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.07,rootMargin:'0px 0px -10px 0px'});$$('.reveal').forEach(x=>io.observe(x))}else $$('.reveal').forEach(x=>x.classList.add('visible'));
+// Home page autoplay: prefer an optimised, first-party MP4 for a seamless native loop.
+// If the MP4 is not present, attempt the public Google Drive embed as a temporary fallback.
+// Drive's player cannot guarantee autoplay, clean controls, or seamless looping.
+const hobartVideo=$('[data-hobart-video]');
+if(hobartVideo){
+ const video=$('video',hobartVideo);
+ let fallbackMounted=false;
+ let driveReplay=null;
+ const driveBase=hobartVideo.dataset.fallbackDrive;
+ const mountDriveFallback=()=>{
+  if(fallbackMounted||!driveBase||!video)return;
+  fallbackMounted=true;
+  video.remove();
+  const crop=document.createElement('div');
+  crop.className='home-video-drive-crop';
+  crop.setAttribute('aria-hidden','true');
+  const frame=document.createElement('iframe');
+  frame.title='Hobart video (Google Drive fallback)';
+  frame.tabIndex=-1;
+  frame.allow='autoplay; fullscreen';
+  frame.referrerPolicy='strict-origin-when-cross-origin';
+  // Drive-specific flags are best effort. Google does not provide a supported seamless-loop API.
+  const embedUrl=driveBase+'?autoplay=1&start=1&mute=1&loop=1';
+  frame.src=embedUrl;
+  crop.appendChild(frame);
+  hobartVideo.appendChild(crop);
+  // Google Drive letterboxes its 16:9 clip inside the iframe. Calculate a
+  // responsive "cover" zoom and overscan so neither the black side bars nor
+  // the bottom progress strip are visible inside our video section.
+  // iframe contents are cross-origin: this does NOT remove Google's controls.
+  const refreshDriveCover=()=>{
+   const rect=hobartVideo.getBoundingClientRect();
+   if(!rect.width||!rect.height)return;
+   const displayRatio=rect.width/rect.height;
+   const videoRatio=16/9;
+   const cover=Math.max(1,displayRatio/videoRatio,videoRatio/displayRatio);
+   crop.style.setProperty('--drive-cover-scale',(cover*1.13).toFixed(3));
+  };
+  refreshDriveCover();
+  if('ResizeObserver' in window){
+   const observer=new ResizeObserver(refreshDriveCover);
+   observer.observe(hobartVideo);
+   window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
+  }else{
+   window.addEventListener('resize',refreshDriveCover,{passive:true});
+  }
+  // Best-effort replay for the 35-second Drive clip. Actual playback may vary due
+  // to Drive loading and browser policies; native MP4 loop above is the robust path.
+  const replay=()=>{
+   if(document.visibilityState!=='visible')return;
+   frame.src=embedUrl;
+  };
+  driveReplay=window.setInterval(replay,38000);
+ };
+ if(video){
+  video.defaultMuted=true;
+  video.muted=true;
+  video.addEventListener('playing',()=>video.classList.add('is-playing'));
+  video.addEventListener('error',mountDriveFallback,{once:true});
+  const src=video.querySelector('source');
+  if(src)src.addEventListener('error',mountDriveFallback,{once:true});
+  // Some browsers do not emit <video> error for a missing child <source>.
+  const attempt=video.play();
+  if(attempt&&typeof attempt.catch==='function')attempt.catch(()=>{
+   // Browser settings may block autoplay. Do not switch away from a healthy video.
+  });
+ }
+ window.addEventListener('pagehide',()=>{if(driveReplay)clearInterval(driveReplay)},{once:true});
+}
 // Editorial category filters.
 const filters=$$('[data-filter]');if(filters.length){filters.forEach(btn=>btn.addEventListener('click',()=>{const wanted=btn.dataset.filter;filters.forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));let visible=0;$$('.insights-grid [data-category]').forEach(card=>{const yes=wanted==='all'||card.dataset.category===wanted;card.hidden=!yes;if(yes)visible++});const empty=$('#insights-empty');if(empty)empty.style.display=visible?'none':'block'}))}
 // Accessible FAQs, one open at a time.
