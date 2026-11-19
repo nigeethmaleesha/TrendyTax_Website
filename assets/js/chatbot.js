@@ -112,8 +112,23 @@
   const replyArea = root.querySelector('[data-chat-replies]');
   const conversation = root.querySelector('[data-chat-conversation]');
 
+  // Lock page scrolling only while the full-screen mobile chat is open.
+  // Desktop keeps its floating panel and normal page scroll behavior.
+  const mobileQuery = window.matchMedia('(max-width: 640px)');
+  let isOpen = false;
+  function syncPageScroll() {
+    document.body.classList.toggle('tt-chatbot-page-locked', isOpen && mobileQuery.matches);
+  }
+  mobileQuery.addEventListener?.('change', () => {
+    syncPageScroll();
+    panel.setAttribute('aria-modal', String(isOpen && mobileQuery.matches));
+  });
+
   function show(open) {
+    isOpen = open;
     panel.hidden = !open;
+    panel.setAttribute('aria-modal', String(open && mobileQuery.matches));
+    syncPageScroll();
     launcher.setAttribute('aria-expanded', String(open));
     launcher.setAttribute('aria-label', open ? 'Close Trendy Tax help guide' : 'Open Trendy Tax help guide');
     root.classList.toggle('tt-chatbot--open', open);

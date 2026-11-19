@@ -6,74 +6,129 @@ if(menu&&nav){menu.addEventListener('click',()=>{const open=menu.getAttribute('a
 function scrolled(){header?.classList.toggle('scrolled',window.scrollY>10)}scrolled();window.addEventListener('scroll',scrolled,{passive:true});
 $$('[data-year]').forEach(x=>x.textContent=String(new Date().getFullYear()));
 if('IntersectionObserver' in window&&!matchMedia('(prefers-reduced-motion: reduce)').matches){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');io.unobserve(e.target)}}),{threshold:.07,rootMargin:'0px 0px -10px 0px'});$$('.reveal').forEach(x=>io.observe(x))}else $$('.reveal').forEach(x=>x.classList.add('visible'));
-// Home page autoplay: prefer an optimised, first-party MP4 for a seamless native loop.
-// If the MP4 is not present, attempt the public Google Drive embed as a temporary fallback.
-// Drive's player cannot guarantee autoplay, clean controls, or seamless looping.
+// Prefer an owned HTML5 MP4 for native muted autoplay and seamless looping.
+// The Google Drive preview has no public video-ended API; its temporary
+// 35-second iframe replay is *best effort*, not a frame-accurate loop.
 const hobartVideo=$('[data-hobart-video]');
 if(hobartVideo){
  const video=$('video',hobartVideo);
- let fallbackMounted=false;
- let driveReplay=null;
  const driveBase=hobartVideo.dataset.fallbackDrive;
+ const mobileQuery=window.matchMedia('(max-width: 800px)');
+ const driveDurationMs=Number(hobartVideo.dataset.driveDurationMs)||35000;
+ let inView=false, fallbackMounted=false, driveObserver=null;
+ let driveLoopTimer=0, driveCycle=0, driveFrame=null;
+ const clearDriveLoop=()=>{if(driveLoopTimer){clearTimeout(driveLoopTimer);driveLoopTimer=0}};
+ const makeDriveUrl=()=>{
+  const url=new URL(driveBase,window.location.href);
+  url.searchParams.set('autoplay','1');
+  url.searchParams.set('mute','1');
+  url.searchParams.set('start','1');
+  // Force a fresh navigation when a 35-second replay is requested.
+  url.searchParams.set('tt_cycle',String(++driveCycle));
+  return url.href;
+ };
+ const scheduleDriveLoop=()=>{
+  clearDriveLoop();
+  if(!driveFrame||!fallbackMounted||!inView||document.hidden||mobileQuery.matches)return;
+  driveLoopTimer=window.setTimeout(()=>{
+   if(!driveFrame||!fallbackMounted||!inView||document.hidden)return;
+   // Cross-origin iframe: replacing its URL is the only available restart.
+   // It may show Google's own controls briefly and timing depends on buffering.
+   driveFrame.src=makeDriveUrl();
+  },driveDurationMs);
+ };
+ const unmountDrive=()=>{
+  clearDriveLoop();
+  hobartVideo.querySelector('.home-video-drive-crop')?.remove();
+  driveObserver?.disconnect();driveObserver=null;
+  fallbackMounted=false;driveFrame=null;
+ };
+ const setPoster=()=>{
+  unmountDrive();
+  video?.pause();
+  video?.classList.remove('is-playing');
+  hobartVideo.classList.add('home-video-poster-only');
+ };
  const mountDriveFallback=()=>{
-  if(fallbackMounted||!driveBase||!video)return;
+  if(!driveBase||!inView||fallbackMounted)return;
+  // The Drive iframe displays an oversized overlay on phones/tablets;
+  // until an MP4 is added, show the clean preview instead of broken chrome.
+  if(mobileQuery.matches){setPoster();return}
+  hobartVideo.classList.remove('home-video-poster-only');
   fallbackMounted=true;
-  video.remove();
-  const crop=document.createElement('div');
-  crop.className='home-video-drive-crop';
+  video?.pause();video?.classList.remove('is-playing');
+  const crop=document.createElement('div');crop.className='home-video-drive-crop';
   crop.setAttribute('aria-hidden','true');
   const frame=document.createElement('iframe');
-  frame.title='Hobart video (Google Drive fallback)';
-  frame.tabIndex=-1;
-  frame.allow='autoplay; fullscreen';
-  frame.referrerPolicy='strict-origin-when-cross-origin';
-  // Drive-specific flags are best effort. Google does not provide a supported seamless-loop API.
-  const embedUrl=driveBase+'?autoplay=1&start=1&mute=1&loop=1';
-  frame.src=embedUrl;
-  crop.appendChild(frame);
-  hobartVideo.appendChild(crop);
-  // Google Drive letterboxes its 16:9 clip inside the iframe. Calculate a
-  // responsive "cover" zoom and overscan so neither the black side bars nor
-  // the bottom progress strip are visible inside our video section.
-  // iframe contents are cross-origin: this does NOT remove Google's controls.
-  const refreshDriveCover=()=>{
-   const rect=hobartVideo.getBoundingClientRect();
-   if(!rect.width||!rect.height)return;
-   const displayRatio=rect.width/rect.height;
-   const videoRatio=16/9;
-   const cover=Math.max(1,displayRatio/videoRatio,videoRatio/displayRatio);
-   crop.style.setProperty('--drive-cover-scale',(cover*1.13).toFixed(3));
+  frame.title='Hobart waterfront film — Google Drive fallback';
+  frame.tabIndex=-1;frame.allow='autoplay; fullscreen';
+  frame.loading='eager';frame.referrerPolicy='strict-origin-when-cross-origin';
+  driveFrame=frame;
+  // A Drive preview load event only means the iframe loaded, NOT that the
+  // video started. The replay timer is therefore approximate, not exact.
+  frame.addEventListener('load',scheduleDriveLoop);
+  frame.src=makeDriveUrl();
+  crop.append(frame);hobartVideo.append(crop);
+  const refreshCover=()=>{
+   const {width,height}=hobartVideo.getBoundingClientRect();
+   if(!width||!height)return;
+   const ratio=width/height,sourceRatio=16/9;
+   crop.style.setProperty('--drive-cover-scale',(Math.max(1,ratio/sourceRatio,sourceRatio/ratio)*1.13).toFixed(3));
   };
-  refreshDriveCover();
-  if('ResizeObserver' in window){
-   const observer=new ResizeObserver(refreshDriveCover);
-   observer.observe(hobartVideo);
-   window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
-  }else{
-   window.addEventListener('resize',refreshDriveCover,{passive:true});
-  }
-  // Best-effort replay for the 35-second Drive clip. Actual playback may vary due
-  // to Drive loading and browser policies; native MP4 loop above is the robust path.
-  const replay=()=>{
-   if(document.visibilityState!=='visible')return;
-   frame.src=embedUrl;
-  };
-  driveReplay=window.setInterval(replay,38000);
+  refreshCover();
+  if('ResizeObserver' in window){driveObserver=new ResizeObserver(refreshCover);driveObserver.observe(hobartVideo)}
+  else window.addEventListener('resize',refreshCover,{passive:true,once:true});
+ };
+ const startNative=()=>{
+  if(!video||!video.isConnected||fallbackMounted||!inView||document.hidden)return;
+  if(video.error||video.networkState===HTMLMediaElement.NETWORK_NO_SOURCE){mountDriveFallback();return}
+  video.defaultMuted=true;video.muted=true;video.loop=true;
+  hobartVideo.classList.remove('home-video-poster-only');
+  const attempt=video.play();
+  if(attempt?.catch)attempt.catch(()=>{
+   if(video.error||video.networkState===HTMLMediaElement.NETWORK_NO_SOURCE){mountDriveFallback()}
+  });
  };
  if(video){
-  video.defaultMuted=true;
-  video.muted=true;
-  video.addEventListener('playing',()=>video.classList.add('is-playing'));
-  video.addEventListener('error',mountDriveFallback,{once:true});
-  const src=video.querySelector('source');
-  if(src)src.addEventListener('error',mountDriveFallback,{once:true});
-  // Some browsers do not emit <video> error for a missing child <source>.
-  const attempt=video.play();
-  if(attempt&&typeof attempt.catch==='function')attempt.catch(()=>{
-   // Browser settings may block autoplay. Do not switch away from a healthy video.
+  video.addEventListener('playing',()=>{hobartVideo.classList.remove('home-video-poster-only');video.classList.add('is-playing')});
+  video.addEventListener('error',mountDriveFallback);
+  video.querySelector('source')?.addEventListener('error',mountDriveFallback);
+  // Defensive fallback for browsers that occasionally fire ended despite loop.
+  video.addEventListener('ended',()=>{
+   if(!inView||document.hidden)return;
+   video.currentTime=0;
+   const replay=video.play();if(replay?.catch)replay.catch(()=>{});
   });
  }
- window.addEventListener('pagehide',()=>{if(driveReplay)clearInterval(driveReplay)},{once:true});
+ const resumeDrive=()=>{
+  if(!driveFrame||!fallbackMounted||!inView||document.hidden)return;
+  clearDriveLoop();
+  driveFrame.src=makeDriveUrl();
+ };
+ const updateView=visible=>{
+  if(inView===visible)return;
+  inView=visible;
+  if(!visible){
+   if(video&&!video.paused)video.pause();
+   clearDriveLoop();
+   return;
+  }
+  if(fallbackMounted)resumeDrive();
+  else startNative();
+ };
+ if('IntersectionObserver' in window){
+  const observer=new IntersectionObserver(entries=>updateView(entries[0].isIntersecting),{rootMargin:'150px 0px',threshold:0});
+  observer.observe(hobartVideo);
+ }else updateView(true);
+ mobileQuery.addEventListener?.('change',()=>{
+  if(mobileQuery.matches){if(fallbackMounted)setPoster()}
+  else if(inView&&video&&(video.error||video.networkState===HTMLMediaElement.NETWORK_NO_SOURCE))mountDriveFallback();
+ });
+ document.addEventListener('visibilitychange',()=>{
+  if(document.hidden){if(video&&!video.paused)video.pause();clearDriveLoop()}
+  else if(inView){if(fallbackMounted)resumeDrive();else startNative()}
+ });
+ window.addEventListener('pagehide',()=>{clearDriveLoop();driveObserver?.disconnect()},{once:true});
 }
 // Editorial category filters.
 const filters=$$('[data-filter]');if(filters.length){filters.forEach(btn=>btn.addEventListener('click',()=>{const wanted=btn.dataset.filter;filters.forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));let visible=0;$$('.insights-grid [data-category]').forEach(card=>{const yes=wanted==='all'||card.dataset.category===wanted;card.hidden=!yes;if(yes)visible++});const empty=$('#insights-empty');if(empty)empty.style.display=visible?'none':'block'}))}
