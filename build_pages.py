@@ -62,7 +62,7 @@ home=f'''<section class="hero"><div class="shell"><div class="hero-content revea
 <div class="trustbar"><div class="shell"><span class="trust-item"><i></i>Tax & Compliance</span><span class="trust-item"><i></i>Accounting & Bookkeeping</span><span class="trust-item"><i></i>Business Advisory</span><span class="trust-item"><i></i>Hobart, Australia</span></div></div>
 <section class="home-video-section" id="hobart-video" aria-label="Hobart waterfront film">
  <div class="home-video-frame home-video-frame--solo" data-hobart-video data-drive-duration-ms="35000" data-fallback-drive="https://drive.google.com/file/d/1W0QRiNsIpTZL0ui8Kmro1rOQlYNdckj2/preview">
-  <video class="home-video-motion" autoplay muted loop playsinline webkit-playsinline preload="metadata" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" poster="assets/img/hobart-video-preview.webp" tabindex="-1" aria-hidden="true">
+  <video class="home-video-motion" autoplay muted loop playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback controlslist="nodownload nofullscreen noremoteplayback" poster="assets/img/hobart-video-preview.webp" tabindex="-1" aria-hidden="true">
    <source src="assets/video/hobart-loop.mp4" type="video/mp4">
   </video>
  </div>
