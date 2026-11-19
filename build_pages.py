@@ -15,16 +15,19 @@ photos={
 }
 def image(url,alt='',loading='lazy',cls=''):
  return f'<img src="{escape(url,quote=True)}" alt="{escape(alt,quote=True)}" loading="{loading}" decoding="async" class="{cls}">'
+def brand(prefix='',footer=False):
+ # Official multicolour symbol is client-provided; historical masthead has navy serif wordmark.
+ return f'<a class="brand" href="{prefix}index.html" aria-label="Trendy Tax Solutions — Home">{image(prefix+"assets/img/brand-mark.png", "", "eager" if not footer else "lazy", "brand-symbol")}<span class="brand-copy">TRENDY TAX SOLUTIONS</span></a>'
 def header(active='',prefix=''):
- nav=[('Home','index.html'),('About Us','about.html'),('Services','services.html'),('Insights','insights.html'),('Contact','contact.html')]
+ nav=[('Home','index.html'),('About Us','about.html'),('Services','services.html'),('Achievements','achievements.html'),('Insights','insights.html'),('Contact','contact.html')]
  links=''.join(f'<a href="{prefix}{href}" class="{"active" if active==href else ""}" {"aria-current=\"page\"" if active==href else ""}>{label}</a>' for label,href in nav)
  return f'''<a href="#main" class="skip">Skip To Content</a><header class="header" id="site-header"><div class="shell header-inner">
- <a class="brand" href="{prefix}index.html" aria-label="Trendy Tax Solutions — Home">{image(prefix+'assets/img/brand-mark.png','', 'eager')}<span class="brand-copy">Trendy Tax<span>Solutions</span></span></a>
+ {brand(prefix)}
  <button class="menu-toggle" type="button" aria-label="Open Navigation" aria-controls="primary-nav" aria-expanded="false"><span></span></button>
  <nav class="nav" id="primary-nav" aria-label="Main Navigation">{links}<a class="nav-cta" href="{prefix}contact.html">Get In Touch {diag}</a></nav></div></header>'''
 def footer(prefix=''):
- return f'''<footer class="footer"><div class="shell footer-top"><div><a class="brand" href="{prefix}index.html">{image(prefix+'assets/img/brand-mark.png','', 'lazy')}<span class="brand-copy">Trendy Tax<span>Solutions</span></span></a><p class="footer-about">Straightforward accounting, tax and business advice from Hobart, Tasmania.</p></div>
- <div><h4>Explore</h4><div class="footer-links"><a href="{prefix}about.html">About Us</a><a href="{prefix}services.html">Services</a><a href="{prefix}insights.html">Insights</a><a href="{prefix}contact.html">Contact</a></div></div>
+ return f'''<footer class="footer"><div class="shell footer-top"><div>{brand(prefix,True)}<p class="footer-about">Straightforward accounting, tax and business advice from Hobart, Tasmania.</p></div>
+ <div><h4>Explore</h4><div class="footer-links"><a href="{prefix}about.html">About Us</a><a href="{prefix}services.html">Services</a><a href="{prefix}achievements.html">Achievements</a><a href="{prefix}insights.html">Insights</a><a href="{prefix}contact.html">Contact</a></div></div>
  <div><h4>Contact</h4><div class="footer-links"><a href="tel:1300968554">1300 968 554</a><a href="mailto:info@trendytaxsolutions.com.au">Email Our Team</a><span class="footer-text">162 Macquarie Street<br>Hobart TAS 7000</span><a href="https://www.trendytaxsolutions.com.au/book-online" target="_blank" rel="noopener noreferrer">Book A Consultation ↗</a></div></div>
  <div><h4>Subscribe to our newsletter</h4><p class="footer-text">Receive occasional accounting, tax and business insights from our Hobart team.</p><form class="subscribe" id="newsletter-form"><label class="sr-only" for="newsletter-email">Your Email Address</label><input id="newsletter-email" type="email" name="email" placeholder="Email Address" required autocomplete="email"><button type="submit">Subscribe</button></form><div class="subscribe-feedback" id="newsletter-feedback" role="status" aria-live="polite"></div><p class="footer-text" style="font-size:10px">Opens an email draft. No subscription is stored on this preview.</p></div></div>
  <div class="shell footer-bottom"><span>© <span data-year>2026</span> Trendy Tax Solutions. All Rights Reserved.</span><span><a href="{prefix}privacy.html">Privacy Information</a> &nbsp; · &nbsp; Hobart, Tasmania</span></div></footer>'''
@@ -57,6 +60,18 @@ articles=[
 # HOME
 home=f'''<section class="hero"><div class="shell"><div class="hero-content reveal"><span class="eyebrow">Accounting & Tax Advisory · Hobart</span><h1>Clear Numbers.<br><em>Confident Decisions.</em></h1><p class="lead">Practical tax, accounting and business advice that helps you move forward with confidence.</p><div class="hero-actions"><a class="btn btn-primary" href="services.html">Explore Our Services {diag}</a><a class="btn btn-outline" href="contact.html">Let's Talk {arrow}</a></div><div class="hero-note"><span></span>Professional. Personal. Straightforward.</div></div><div class="hero-image reveal delay1"><div class="image-frame">{image(photos['hero'],'Naturally lit contemporary office with meeting chairs', 'eager')}</div><div class="hero-caption"><strong>Based In Hobart, Tasmania</strong>Thoughtful advice for business owners and individuals.</div></div></div></section>
 <div class="trustbar"><div class="shell"><span class="trust-item"><i></i>Tax & Compliance</span><span class="trust-item"><i></i>Accounting & Bookkeeping</span><span class="trust-item"><i></i>Business Advisory</span><span class="trust-item"><i></i>Hobart, Australia</span></div></div>
+<section class="section credentials-section" id="our-credentials"><div class="shell">
+ <div class="section-head reveal"><div><span class="eyebrow">Professional Credentials &amp; Partnerships</span><h2>Our Professional Connections.</h2></div><p class="body-copy">A selection of credentials and professional marks supplied by Trendy Tax Solutions.</p></div>
+ <div class="credentials-grid">
+  <div class="credential-card reveal">{image('assets/img/credentials/caanz.png','Chartered Accountants Australia and New Zealand')}<span>CA ANZ</span></div>
+  <div class="credential-card reveal">{image('assets/img/credentials/registered-tax-agent.png','Registered Tax Agent')}<span>Registered Tax Agent</span></div>
+  <div class="credential-card reveal">{image('assets/img/credentials/asic-agent.jpg','ASIC Registered Agent')}<span>ASIC Registered Agent</span></div>
+  <div class="credential-card reveal">{image('assets/img/credentials/tax-institute.jpg','The Tax Institute Chartered Tax Adviser')}<span>The Tax Institute</span></div>
+  <div class="credential-card reveal">{image('assets/img/credentials/xfactor-xero-silver.jpg','Xero Silver Partner')}<span>Xero Silver Partner</span></div>
+  <div class="credential-card reveal">{image('assets/img/credentials/mfaa-member.jpg','Mortgage and Finance Association of Australia Member')}<span>MFAA</span></div>
+ </div>
+ <div class="credentials-cta reveal"><div><span class="eyebrow">The People Behind The Practice</span><h3>More Than The Numbers.</h3><p>Discover the people and approach behind Trendy Tax Solutions.</p></div><a href="about.html" class="btn btn-primary">About Us {diag}</a></div>
+ </div></section>
 <section class="section"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">What We Do</span><h2>Essential Support, Without The Complexity.</h2></div><a class="text-link" href="services.html">View All Services {diag}</a></div><div class="grid3 home-services">{''.join(service(services[i][0],services[i][1],i+1) for i in [0,1,2])}</div></div></section>
 <section class="section alt"><div class="shell story-grid"><div class="story-image reveal"><div class="image-frame">{image(photos['workspace'],'Light-filled modern office work area')}</div></div><div class="story-copy reveal delay1"><span class="eyebrow">A Better Way To Work</span><h2>Advice That Makes Sense For You.</h2><p class="body-copy">Your finances shouldn't be harder to understand than they need to be. We combine careful attention to detail with clear, useful conversations.</p><div class="steps"><div class="step"><b>01</b><div><strong>Understand Your Goals</strong><p>We begin by listening to what matters to you.</p></div></div><div class="step"><b>02</b><div><strong>Keep Things Clear</strong><p>We explain the numbers and your options simply.</p></div></div><div class="step"><b>03</b><div><strong>Plan The Next Move</strong><p>We help you make informed decisions.</p></div></div></div><a href="about.html" class="text-link">Discover Our Approach {diag}</a></div></div></section>
 <section class="section"><div class="shell team-grid"><div class="team-copy reveal"><span class="eyebrow">The People Behind The Work</span><h2>Professional Expertise. A Personal Approach.</h2><p class="body-copy">Good advice starts with a conversation. Our approach is grounded in trust, attention and practical support.</p><a href="about.html" class="btn btn-outline">About Our Firm {arrow}</a></div><div class="team-visual reveal delay1">{image('assets/img/team-portrait.jpg','Professional team portrait supplied by Trendy Tax Solutions')}</div></div></section>
@@ -104,7 +119,17 @@ def make_gallery():
  )
 
 gallery_markup = make_gallery()
-about=f'''<section class="section page-start"><div class="shell"><h1 class="sr-only">About Us</h1><div class="about-intro"><div class="about-photo reveal">{image(photos['collab'],'Professionals collaborating around a meeting table')}</div><div class="reveal delay1"><span class="eyebrow">Who We Are</span><h2>A Practical Partner In Your Financial Journey.</h2><p class="body-copy">Trendy Tax Solutions is a Hobart-based accounting practice supporting individuals and businesses with accounting, taxation and business advice.</p><p class="body-copy">We believe reliable, responsive support and a genuine understanding of your needs make all the difference.</p><a class="text-link" href="contact.html">Get To Know Us {diag}</a></div></div><div class="founder-spotlight reveal"><div class="founder-photos"><div class="founder-portrait founder-portrait--first">{image('assets/img/founder-office.png','Founder of Trendy Tax Solutions seated at a desk in a black suit')}</div><div class="founder-portrait founder-portrait--second">{image('assets/img/founder-seated.png','Founder of Trendy Tax Solutions seated on a stool wearing glasses')}</div></div><div class="founder-copy"><span class="eyebrow">Our Founder</span><h3>A Personal Approach To Every Client.</h3><p class="body-copy">Our practice is built around approachable conversations, lasting relationships and clear, practical advice for the people and businesses we support.</p></div></div></div></section>
+about=f'''<section class="section page-start about-founder-section"><div class="shell"><h1 class="sr-only">About Us</h1>
+ <div class="about-founder-layout">
+  <div class="about-founder-copy reveal"><span class="eyebrow">About Us · Our Founder</span><h2>Professional Expertise.<br>A Personal Approach.</h2>
+  <p class="body-copy">Trendy Tax Solutions is a Hobart-based accounting practice supporting individuals and businesses with accounting, taxation and business advice.</p>
+  <p class="body-copy">We believe reliable, responsive support and a genuine understanding of your needs make all the difference. Our approach is built around approachable conversations, lasting relationships and clear, practical advice.</p>
+  <a href="contact.html" class="text-link">Get In Touch {diag}</a></div>
+  <div class="about-founder-casual reveal delay1"><div class="about-founder-casual-frame">{image('assets/img/founder-seated.png','Founder of Trendy Tax Solutions seated in casual clothing and glasses')}</div><span class="about-photo-label">Meet The Founder</span></div>
+ </div>
+ <figure class="about-founder-formal reveal"><div class="about-founder-formal-frame">{image('assets/img/founder-office.png','Founder of Trendy Tax Solutions seated at a desk in formal business attire')}</div><figcaption><span>Our Founder</span><span>Trendy Tax Solutions · Hobart</span></figcaption></figure>
+ <div class="about-achievements-cta reveal"><div><span class="eyebrow">Our Story In Action</span><h3>Explore Our Milestones &amp; Recognition.</h3></div><a href="achievements.html" class="btn btn-outline">See Our Achievements {diag}</a></div>
+ </div></section>
 <section class="section alt"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">Our Direction</span><h2>Built On Clarity And Trust.</h2></div></div><div class="statements"><div class="statement reveal"><span class="num">Vision</span><h3>Our Vision</h3><p>To be a respected accounting practice known for professionalism, reliability and practical solutions.</p></div><div class="statement reveal delay1"><span class="num">Mission</span><h3>Our Mission</h3><p>To provide quality support through thoughtful accounting, tax and bookkeeping services.</p></div><div class="statement reveal delay2"><span class="num">Approach</span><h3>Our Approach</h3><p>Listen closely, explain clearly and help clients make decisions with confidence.</p></div></div></div></section>
 <section class="section"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">What Matters To Us</span><h2>Values That Guide Our Work.</h2></div></div><div class="values"><div class="value"><h3>Professionalism</h3><p>Care in every detail.</p></div><div class="value"><h3>Care</h3><p>People come first.</p></div><div class="value"><h3>Connection</h3><p>Relationships built to last.</p></div><div class="value"><h3>Respect</h3><p>Advice you can trust.</p></div><div class="value"><h3>Curiosity</h3><p>Ideas that move forward.</p></div></div></div></section>
 {gallery_markup}{cta()}'''
@@ -113,6 +138,34 @@ about_html = doc('About Us | Trendy Tax Solutions','Learn about our practical, p
 about_html = about_html.replace('<title>About Us | Trendy Tax Solutions</title>', '<link rel="stylesheet" href="assets/css/about-gallery.css?v=3"><title>About Us | Trendy Tax Solutions</title>', 1)
 about_html = about_html.replace('<script src="assets/js/main.js" defer></script>', '<script src="assets/js/main.js" defer></script><script src="assets/js/about-gallery.js?v=2" defer></script>', 1)
 (root/'about.html').write_text(about_html,encoding='utf-8')
+
+# ACHIEVEMENTS — evidence-driven recognition and event imagery supplied by client.
+recognition_items = [
+ ('award-young-ca-2025.jpg','Young Chartered Accountant of the Year','2025 · Tasmania winner'),
+ ('award-mentor-2025.jpg','Mentor of the Year','Australian Accounting Awards · 2025 winner'),
+ ('award-finalist-2024.jpg','Not-for-Profit Accountant of the Year','Australian Accounting Awards · 2024 finalist'),
+ ('award-finalist-2025.jpg','Not-for-Profit Accountant of the Year','Australian Accounting Awards · 2025 finalist'),
+ ('cyber-security-badge.jpg','Practice Protect','Cyber Security Best Practice'),
+]
+awards_cards=''.join(
+ f'<article class="award-card reveal"><div class="award-card-art">{image("assets/img/credentials/"+filename,title+" "+subtitle)}</div><div class="award-card-copy"><h3>{title}</h3><p>{subtitle}</p></div></article>'
+ for filename,title,subtitle in recognition_items
+)
+event_items=[
+ ('assets/img/about-gallery/panel-discussion.jpg','Panel discussion'),
+ ('assets/img/about-gallery/chartered-accountants-address.jpg','Professional address'),
+ ('assets/img/about-gallery/chartered-accountants-presentation.jpg','Speaking engagement'),
+ ('assets/img/about-gallery/mentor-of-the-year.jpg','Awards presentation'),
+ ('assets/img/about-gallery/australian-accounting-awards.jpg','Australian Accounting Awards'),
+]
+event_cards=''.join(f'<figure class="achievement-event reveal{" achievement-event--portrait" if label == "Professional address" else ""}">{image(file,label)}<figcaption>{label}</figcaption></figure>' for file,label in event_items)
+achievements=f'''<section class="section page-start achievements-hero"><div class="shell"><span class="eyebrow">Our Journey</span><h1>Our Achievements.</h1><p class="lead">Recognition, professional milestones and memorable moments from events and awards.</p></div></section>
+<section class="section achievements-awards"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">Awards &amp; Recognition</span><h2>Moments Worth Celebrating.</h2></div><p class="body-copy">Recognition artwork and photographs provided by the Trendy Tax Solutions team.</p></div><div class="awards-grid">{awards_cards}</div></div></section>
+<section class="section alt achievements-events"><div class="shell"><div class="section-head reveal"><div><span class="eyebrow">Professional Events</span><h2>Sharing, Learning &amp; Connecting.</h2></div><p class="body-copy">A selection of photographs from professional events, presentations and awards.</p></div><div class="achievement-events-grid">{event_cards}</div></div></section>
+<section class="section achievements-community"><div class="shell"><div class="achievements-community-inner"><div><span class="eyebrow">Community &amp; Volunteer Work</span><h2>Giving Back Matters.</h2><p class="body-copy">We're preparing this space for the team's approved volunteering stories and community initiatives.</p></div><a href="contact.html" class="btn btn-outline">Connect With Us {diag}</a></div></div></section>
+{cta()}'''
+(root/'achievements.html').write_text(doc('Our Achievements | Trendy Tax Solutions','Awards, professional milestones and events at Trendy Tax Solutions.',achievements,'achievements.html'),encoding='utf-8')
+
 # SERVICES
 srv=f'''<section class="section page-start"><div class="shell"><h1 class="sr-only">Services</h1><div class="section-head reveal"><div><span class="eyebrow">How We Can Help</span><h2>What We Do, At A Glance.</h2></div><p class="body-copy">Choose the service that fits what you need. Our team can help you understand your next step.</p></div><div class="services-list">{''.join(f'<a href="contact.html?service={i}" class="service-row reveal"><div><h3>{escape(name)}</h3><p>{escape(desc)}</p></div><span class="service-arrow">{diag}</span></a>' for i,(name,desc) in enumerate(services))}</div><p class="service-list-footer">Not sure which service you need? <a href="contact.html">Tell Us About Your Enquiry</a>.</p></div></section>
 <section class="section alt"><div class="shell story-grid"><div class="story-copy reveal"><span class="eyebrow">A Straightforward Process</span><h2>Start With A Conversation.</h2><p class="body-copy">No unnecessary complexity. Just an opportunity to discuss your needs and understand what support may be appropriate.</p><a class="btn btn-primary" href="https://www.trendytaxsolutions.com.au/book-online" target="_blank" rel="noopener noreferrer">Book A Consultation {diag}</a></div><div class="story-image reveal delay1"><div class="image-frame">{image(photos['office'],'Bright office interior with natural light')}</div></div></div></section>{cta()}'''
