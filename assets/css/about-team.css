@@ -1,0 +1,79 @@
+/* About Us only. No changes to shared styles or behaviour. */
+.tts-team-founder { background: var(--warm); }
+.tts-team-founder .section-head, .tts-team-section .section-head { margin-bottom: 30px; }
+.tts-founder-profile { display: grid; grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+.tts-founder-identity { min-width: 0; }
+.tts-founder-photo { overflow: hidden; border-radius: 48px 6px 6px 6px; background: var(--sand); }
+.tts-founder-photo img { width: 100%; height: auto; display: block; }
+.tts-founder-identity h3 { font-size: clamp(24px, 2.4vw, 32px); margin: 20px 0 6px; }
+.tts-team-role { color: var(--teal); font-weight: 700; font-size: 13px; line-height: 1.5; margin: 0 0 16px; }
+.tts-founder-bio p, .tts-team-details p:not(.tts-team-role) { color: var(--ink2); font-size: 14px; line-height: 1.8; margin: 0 0 14px; }
+.tts-founder-bio p:last-child, .tts-team-details p:last-child { margin-bottom: 0; }
+.tts-team-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 24px; }
+.tts-team-card { display: grid; grid-template-columns: minmax(0, 132px) minmax(0, 1fr); align-items: start; gap: 22px; border: 1px solid var(--line); border-radius: 8px; padding: 24px; background: var(--paper); min-width: 0; }
+.tts-team-photo { aspect-ratio: 1; overflow: hidden; border-radius: 6px; background: var(--warm); }
+.tts-team-photo img { width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+.tts-team-details { min-width: 0; overflow-wrap: break-word; }
+.tts-team-details h3 { font-size: 22px; margin: 1px 0 6px; }
+@media (max-width: 1050px) {
+  .tts-team-card { grid-template-columns: 100px minmax(0,1fr); gap: 16px; padding: 20px; }
+}
+@media (max-width: 800px) {
+  .tts-founder-profile, .tts-team-grid { grid-template-columns: minmax(0,1fr); }
+  .tts-founder-identity { max-width: 480px; }
+  .tts-team-card { grid-template-columns: 130px minmax(0,1fr); }
+}
+@media (max-width: 560px) {
+  .tts-team-card { grid-template-columns: minmax(0,1fr); padding: 20px; gap: 18px; }
+  .tts-team-photo { width: 140px; }
+  .tts-founder-photo { border-top-left-radius: 36px; }
+  .tts-team-founder .section-head, .tts-team-section .section-head { margin-bottom: 23px; }
+  .tts-founder-bio p, .tts-team-details p:not(.tts-team-role) { font-size: 14px; }
+}
+
+/* Founder profile refinement: isolated to this section. */
+#founder-profile .tts-founder-bio { min-width: 0; }
+#founder-profile .tts-founder-bio .tts-founder-intro { font-size: clamp(16px, 1.45vw, 19px); font-weight: 600; line-height: 1.65; color: var(--ink); margin-bottom: 12px; }
+#founder-profile .tts-founder-bio > p { margin-bottom: 16px; font-size: 15px; line-height: 1.75; }
+#founder-profile .tts-founder-block { border-top: 1px solid var(--line); padding-top: 15px; margin-top: 17px; }
+#founder-profile .tts-founder-block h4 { font-size: 15px; font-weight: 800; margin: 0 0 10px; color: var(--ink); letter-spacing: -.015em; }
+#founder-profile .tts-founder-credentials { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); list-style: none; margin: 0; padding: 0; gap: 7px 14px; }
+#founder-profile .tts-founder-credentials li { position: relative; padding-left: 13px; font-size: 13px; color: var(--ink2); line-height: 1.55; overflow-wrap: break-word; }
+#founder-profile .tts-founder-credentials li::before { content: ''; position: absolute; width: 5px; height: 5px; border-radius: 50%; left: 0; top: .57em; background: var(--teal); }
+#founder-profile .tts-founder-awards { display: grid; gap: 8px; }
+#founder-profile .tts-founder-award { display: grid; grid-template-columns: auto minmax(0,1fr); align-items: start; gap: 12px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--line); border-radius: 5px; }
+#founder-profile .tts-founder-award strong { display: block; font-size: 13px; line-height: 1.5; color: var(--ink); }
+#founder-profile .tts-founder-award div > span { display: block; font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 3px; }
+#founder-profile .tts-founder-year { font-size: 12px; font-weight: 800; line-height: 1.6; color: var(--teal); padding-right: 12px; border-right: 1px solid var(--line); }
+#founder-profile .tts-founder-leadership p { margin: 0; }
+@media (max-width: 560px) {
+  #founder-profile .tts-founder-credentials { grid-template-columns: minmax(0,1fr); }
+  #founder-profile .tts-founder-award { padding: 10px 12px; gap: 10px; }
+}
+
+/* Full client-supplied biographies: About Us profiles only. */
+#founder-profile .tts-founder-profile { grid-template-columns: minmax(0,.8fr) minmax(0,1.2fr); }
+#founder-profile .tts-founder-identity { max-width: 480px; }
+.tts-full-bio { min-width: 0; overflow-wrap: break-word; }
+#founder-profile .tts-full-bio .tts-profile-block, #our-team .tts-profile-block { border-top: 1px solid var(--line); padding-top: 13px; margin-top: 16px; }
+#founder-profile .tts-profile-block h4, #our-team .tts-profile-block h4 { color: var(--ink); font-size: 15px; line-height: 1.4; font-weight: 800; margin: 0 0 6px; }
+#founder-profile .tts-profile-block p, #our-team .tts-person-bio p { font-size: 15px; color: var(--ink2); line-height: 1.75; margin: 0; }
+#our-team .tts-profile-list { display: grid; gap: 0; }
+#our-team .tts-person-profile { display: grid; grid-template-columns: minmax(0, 240px) minmax(0,1fr); gap: clamp(26px,5vw,70px); padding: 34px 0; border-bottom: 1px solid var(--line); align-items: start; }
+#our-team .tts-person-profile:first-child { padding-top: 0; }
+#our-team .tts-person-profile:last-child { border-bottom: 0; padding-bottom: 0; }
+#our-team .tts-person-identity { min-width: 0; }
+#our-team .tts-person-photo { overflow: hidden; border-radius: 32px 6px 6px 6px; background: var(--warm); width: 100%; aspect-ratio: 1; }
+#our-team .tts-person-photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; }
+#our-team .tts-person-identity h3 { font-size: clamp(22px,2.2vw,28px); margin: 15px 0 4px; }
+#our-team .tts-person-identity .tts-team-role { margin-bottom: 0; }
+#our-team .tts-person-bio .tts-person-intro { font-size: clamp(16px,1.4vw,18px); font-weight: 600; line-height: 1.65; color: var(--ink); }
+@media (max-width: 800px) {
+  #founder-profile .tts-founder-profile { grid-template-columns: minmax(0,1fr); }
+  #our-team .tts-person-profile { grid-template-columns: minmax(0,180px) minmax(0,1fr); gap: 25px; }
+}
+@media (max-width: 560px) {
+  #our-team .tts-person-profile { grid-template-columns: minmax(0,1fr); gap: 20px; padding: 28px 0; }
+  #our-team .tts-person-photo { max-width: 220px; }
+  #founder-profile .tts-profile-block p, #our-team .tts-person-bio p { font-size: 15px; }
+}
