@@ -185,3 +185,12 @@
 }
 
 @media(max-width:640px){body.tt-chatbot-page-locked{overflow:hidden;}body.tt-chatbot-page-locked .tt-chatbot__conversation{touch-action:pan-y;}}
+
+/* AI message composer: only the chatbot is affected. */
+.tt-chatbot__input input {min-width:0;flex:1;width:100%;background:transparent;border:0;color:var(--ttc-ink);font:inherit;outline:none;padding:5px 0;}
+.tt-chatbot__input:focus-within {border-color:var(--ttc-action);}
+.tt-chatbot__input button {flex:0 0 32px;background:var(--ttc-action);color:#fff;cursor:pointer;}
+.tt-chatbot__input button:disabled {background:#e8eeea;color:#a6b2ac;cursor:wait;}
+.tt-chatbot__bubble {white-space:pre-wrap;}
+.tt-chatbot__source {display:flex;white-space:normal;}
+@media(max-width:640px){.tt-chatbot__input input{font-size:16px;}}

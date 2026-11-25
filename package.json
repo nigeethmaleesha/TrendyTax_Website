@@ -1,0 +1,8 @@
+{
+  "name": "trendy-tax-website",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": "22.x" },
+  "scripts": { "build": "node scripts/build.mjs", "dev": "node scripts/dev.mjs", "test": "node --test tests/*.test.mjs", "knowledge": "python scripts/build_knowledge.py" }
+}

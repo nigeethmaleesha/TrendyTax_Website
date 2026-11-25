@@ -1,7 +1,6 @@
 /**
- * Trendy Tax Solutions — front-end-only chat guide.
- * No API calls, message submission, persistence, tracking or personal data collection.
- * All responses are curated demonstration copy; replace this module when a live service is approved.
+ * Trendy Tax Solutions — website AI assistant (development preview).
+ * Server-side AI requests; conversation held in page memory only.
  */
 (() => {
   'use strict';
@@ -66,7 +65,7 @@
           <div class="tt-chatbot__brand" aria-hidden="true"><img src="${page('assets/img/brand-mark.png')}" alt=""></div>
           <div class="tt-chatbot__identity-copy">
             <strong id="tt-chatbot-title">Trendy Tax Assistant</strong>
-            <span id="tt-chatbot-description"><i aria-hidden="true"></i> Guided website preview</span>
+            <span id="tt-chatbot-description"><i aria-hidden="true"></i> AI website assistant · Preview</span>
           </div>
         </div>
         <div class="tt-chatbot__header-actions">
@@ -77,7 +76,7 @@
       <div class="tt-chatbot__conversation" data-chat-conversation role="log" aria-live="polite" aria-relevant="additions text">
         <div class="tt-chatbot__timeline"><span>Welcome</span></div>
         <div class="tt-chatbot__bot-line"><span class="tt-chatbot__bot-avatar" aria-hidden="true">T</span><div class="tt-chatbot__bubble tt-chatbot__bubble--bot">Hello! 👋 Welcome to Trendy Tax Solutions.</div></div>
-        <div class="tt-chatbot__bot-line tt-chatbot__bot-line--continued"><span class="tt-chatbot__bot-avatar tt-chatbot__bot-avatar--empty"></span><div class="tt-chatbot__bubble tt-chatbot__bubble--bot">Need a hand finding the right accounting or tax service? I can point you in the right direction.</div></div>
+        <div class="tt-chatbot__bot-line tt-chatbot__bot-line--continued"><span class="tt-chatbot__bot-avatar tt-chatbot__bot-avatar--empty"></span><div class="tt-chatbot__bubble tt-chatbot__bubble--bot">Ask me about our services, team, achievements or contact details.</div></div>
         <div class="tt-chatbot__topic-area" data-chat-topics>
           <p class="tt-chatbot__topic-heading">What can we help you with?</p>
           <div class="tt-chatbot__topics">
@@ -91,10 +90,11 @@
         <div data-chat-replies></div>
       </div>
       <div class="tt-chatbot__footer">
-        <div class="tt-chatbot__input" aria-label="Live messaging is not enabled in this demo">
-          <span>Messaging available soon</span><button type="button" disabled aria-label="Send unavailable in preview">${svg('arrow', 17)}</button>
-        </div>
-        <p class="tt-chatbot__privacy">${svg('shield', 13)} Preview only · Messaging isn’t enabled. Please don’t share personal or financial details.</p>
+        <form class="tt-chatbot__input" data-chat-form>
+          <input data-chat-input type="text" maxlength="600" autocomplete="off" aria-label="Ask about Trendy Tax Solutions" placeholder="Ask about our website…" required>
+          <button type="submit" data-chat-send aria-label="Send message">${svg('arrow', 17)}</button>
+        </form>
+        <p class="tt-chatbot__privacy">${svg('shield', 13)} AI preview · Messages go to Gemini. Do not share personal or financial details.</p>
       </div>
     </section>
     <button class="tt-chatbot__launcher" type="button" data-chat-launcher aria-label="Open Trendy Tax help guide" aria-controls="tt-chatbot-panel" aria-expanded="false">
@@ -144,30 +144,61 @@
     conversation.scrollTop = conversation.scrollHeight;
   }
 
+  const form = root.querySelector('[data-chat-form]');
+  const input = root.querySelector('[data-chat-input]');
+  const send = root.querySelector('[data-chat-send]');
+  let history = [], active = null;
+  function line(text, user = false) {
+    const row = document.createElement('div');
+    row.className = user ? 'tt-chatbot__user-line' : 'tt-chatbot__bot-line';
+    if (!user) {
+      const avatar = document.createElement('span'); avatar.className = 'tt-chatbot__bot-avatar'; avatar.textContent = 'T'; avatar.setAttribute('aria-hidden','true'); row.append(avatar);
+    }
+    const bubble = document.createElement('div'); bubble.className = 'tt-chatbot__bubble tt-chatbot__bubble--' + (user ? 'user' : 'bot');
+    bubble.textContent = text; row.append(bubble); replyArea.append(row); scrollToLatest();
+    return {row,bubble};
+  }
+  const allowedSources = new Set(['index.html','about.html','services.html','achievements.html','contact.html','insights.html','insights/bookkeeping.html','insights/cash-flow.html','insights/tax-readiness.html']);
+  function addSources(bubble, sources) {
+    if (!Array.isArray(sources)) return;
+    for (const source of sources) {
+      if (!allowedSources.has(source.id)) continue;
+      const a = document.createElement('a'); a.href = page(source.id); a.className = 'tt-chatbot__secondary-link tt-chatbot__source'; a.textContent = 'View ' + source.title; bubble.append(a);
+    }
+  }
+  async function ask(value) {
+    const question = value.trim(); if (!question || active) return;
+    topicArea.hidden = true; input.value = ''; send.disabled = true; line(question,true);
+    const pending = line('Thinking…'); pending.row.setAttribute('aria-busy','true');
+    const controller = new AbortController(); active = controller;
+    const timer = setTimeout(() => controller.abort(), 27000);
+    try {
+      const response = await fetch(page('api/chat'), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:question,history}),signal:controller.signal});
+      const data = await response.json();
+      if (active !== controller) return;
+      if (!response.ok) {pending.bubble.textContent = data.error || 'The assistant is temporarily unavailable.';addSources(pending.bubble,[{id:'contact.html',title:'Contact & FAQs'}]);return;}
+      pending.bubble.textContent = data.answer || 'Please contact our team for assistance.';
+      addSources(pending.bubble,data.sources);
+      // Do not retain messages with likely personal identifiers in conversation context.
+      if (!/\d{3}|@|\b(?:password|tfn|bank account|date of birth)\b/i.test(question)) history = [...history,question].slice(-3);
+    } catch {
+      if (active === controller) {pending.bubble.textContent = 'I couldn’t connect right now. Please try again or contact our team.';addSources(pending.bubble,[{id:'contact.html',title:'Contact & FAQs'}]);}
+    } finally {
+      clearTimeout(timer);
+      if (active === controller) {active = null; send.disabled = false; pending.row.removeAttribute('aria-busy'); scrollToLatest();}
+    }
+  }
+  form.addEventListener('submit', event => {event.preventDefault(); ask(input.value);});
   function choose(id) {
-    const topic = topics.find(item => item.id === id);
-    if (!topic) return;
-    topicArea.hidden = true;
-    const alternative = topic.alternate ? `<a href="${topic.alternate.href}" target="_blank" rel="noopener noreferrer" class="tt-chatbot__secondary-link">${topic.alternate.label} ${svg('arrow', 14)}</a>` : '';
-    replyArea.innerHTML = `
-      <div class="tt-chatbot__user-line"><div class="tt-chatbot__bubble tt-chatbot__bubble--user">${topic.title}</div></div>
-      <div class="tt-chatbot__bot-line tt-chatbot__bot-line--answer"><span class="tt-chatbot__bot-avatar" aria-hidden="true">T</span><div class="tt-chatbot__bubble tt-chatbot__bubble--bot">${topic.answer}
-        <a class="tt-chatbot__answer-link" href="${topic.href}">${topic.label} ${svg('arrow', 16)}</a>
-        ${alternative}
-      </div></div>
-      <button type="button" class="tt-chatbot__another" data-chat-another>← Explore another topic</button>`;
-    replyArea.querySelector('[data-chat-another]').addEventListener('click', () => {
-      replyArea.replaceChildren();
-      topicArea.hidden = false;
-      conversation.scrollTop = 0;
-      topicArea.querySelector('button').focus({ preventScroll: true });
-    });
-    scrollToLatest();
+    const topic = topics.find(item => item.id === id); if (!topic) return;
+    ask('Can you tell me about ' + topic.title.toLowerCase() + '?');
   }
 
   launcher.addEventListener('click', () => show(panel.hidden));
   closeButton.addEventListener('click', () => show(false));
   resetButton.addEventListener('click', () => {
+    if (active) active.abort();
+    active = null; history = []; send.disabled = false; input.value = '';
     replyArea.replaceChildren();
     topicArea.hidden = false;
     conversation.scrollTop = 0;

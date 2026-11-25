@@ -1,0 +1,13 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {answerQuestion} from '../lib/chat.mjs';
+import handler from '../api/chat.mjs';
+const env={GEMINI_API_KEY:'mock-secret'};
+const mock=(result, inspect=()=>{})=>async(url,options)=>{inspect(url,options);return {ok:true,json:async()=>({candidates:[{content:{parts:[{text:JSON.stringify(result)}]}}]})};};
+test('Grounded answer with validated links, no draft policy',async()=>{const a=await answerQuestion('Who is Sam?',[],{env,fetcher:mock({status:'answered',answer:'Sam Naragala is the founder.',sources:['about.html','https://evil.example','privacy.html']},(url,o)=>{assert.match(url,/gemini-3.1-flash-lite/);assert.equal(o.headers['x-goog-api-key'],'mock-secret');const payload=JSON.parse(o.body);const data=JSON.parse(payload.contents[0].parts[0].text);assert.ok(data.website.some(p=>p.text.includes('Sam Naragala')));assert.ok(!data.website.some(p=>p.draft||p.id==='privacy.html'));})});assert.deepEqual(a.sources,[{id:'about.html',title:'About Us'}]);});
+test('Missing source => fallback',async()=>{const a=await answerQuestion('fees?',[],{env,fetcher:mock({status:'answered',answer:'$500',sources:['unknown']})});assert.match(a.answer,/couldn’t confirm/);});
+test('Sensitive question blocked without provider call',async()=>{const a=await answerQuestion('My TFN is 123456789',[],{env,fetcher:()=>{throw Error('should not call');}});assert.match(a.answer,/do not share/);});
+test('Missing key handled',async()=>{await assert.rejects(answerQuestion('services?',[],{env:{}}),{code:'NOT_CONFIGURED'});});
+test('Quota error handled',async()=>{await assert.rejects(answerQuestion('services?',[],{env,fetcher:async()=>({ok:false,status:429})}),{code:'QUOTA'});});
+test('Drafts opt in and previous question context',async()=>{await answerQuestion('what about that?', ['cash flow'],{env:{...env,CHAT_INCLUDE_DRAFTS:'true'},fetcher:mock({status:'unknown',answer:'',sources:[]},(_,o)=>{const d=JSON.parse(JSON.parse(o.body).contents[0].parts[0].text);assert.equal(d.previousQuestions[0],'cash flow');assert.equal(d.website.filter(p=>p.draft).length,3);})});});
+test('Endpoint validation and method',async()=>{for(const [method,body,status] of [['GET',{},405],['POST',{message:''},400],['POST',{message:'a'.repeat(601)},400]]){const res={setHeader(){},end(s){this.body=JSON.parse(s);}};await handler({method,body,headers:{'content-type':'application/json'}},res);assert.equal(res.statusCode,status);}});
