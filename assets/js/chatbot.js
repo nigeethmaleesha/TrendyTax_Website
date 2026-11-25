@@ -172,6 +172,9 @@
     const pending = line('Thinking…'); pending.row.setAttribute('aria-busy','true');
     const controller = new AbortController(); active = controller;
     const timer = setTimeout(() => controller.abort(), 27000);
+    const progressTimer = setTimeout(() => {
+      if (active === controller) {pending.bubble.textContent = 'Still checking our website…'; scrollToLatest();}
+    }, 4000);
     try {
       const response = await fetch(page('api/chat'), {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:question,history}),signal:controller.signal});
       const data = await response.json();
@@ -184,7 +187,7 @@
     } catch {
       if (active === controller) {pending.bubble.textContent = 'I couldn’t connect right now. Please try again or contact our team.';addSources(pending.bubble,[{id:'contact.html',title:'Contact & FAQs'}]);}
     } finally {
-      clearTimeout(timer);
+      clearTimeout(timer); clearTimeout(progressTimer);
       if (active === controller) {active = null; send.disabled = false; pending.row.removeAttribute('aria-busy'); scrollToLatest();}
     }
   }

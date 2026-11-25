@@ -2,7 +2,7 @@ import {answerQuestion} from '../lib/chat.mjs';
 // Best-effort instance-local limits; use a distributed limiter / WAF before public launch.
 const hits=new Map();
 function limited(ip){const now=Date.now(); for(const [key,val] of hits) if(val.until<now) hits.delete(key); if(hits.size>=5000&&!hits.has(ip)) return true; const h=hits.get(ip)||{n:0,until:now+60000};h.n++;hits.set(ip,h);return h.n>8;}
-const errorMessages={NOT_CONFIGURED:'The AI assistant is not configured yet. Please contact our team.',QUOTA:'The assistant has reached its temporary usage limit. Please try again later or contact our team.',PROVIDER_ERROR:'The AI assistant is temporarily unavailable. Please try again or contact our team.'};
+const errorMessages={TIMEOUT:'The AI service is taking longer than expected. Please try again or contact our team.',NOT_CONFIGURED:'The AI assistant is not configured yet. Please contact our team.',QUOTA:'The assistant has reached its temporary usage limit. Please try again later or contact our team.',PROVIDER_ERROR:'The AI assistant is temporarily unavailable. Please try again or contact our team.'};
 export default async function handler(req,res){
   res.setHeader('Cache-Control','no-store'); res.setHeader('Content-Type','application/json; charset=utf-8');
   const send=(status,data)=>{res.statusCode=status;res.end(JSON.stringify(data));};
@@ -18,5 +18,5 @@ export default async function handler(req,res){
     const ip=String(req.headers['x-real-ip']||req.headers['x-forwarded-for']||req.socket?.remoteAddress||'unknown').split(',')[0].trim();
     if(limited(ip))return send(429,{error:'Too many questions. Please wait a minute.'});
     return send(200,await answerQuestion(body.message.trim(),history));
-  }catch(err){if(err instanceof SyntaxError)return send(400,{error:'Invalid JSON.'});return send(err.status||503,{error:errorMessages[err.code]||errorMessages.PROVIDER_ERROR});}
+  }catch(err){if(err instanceof SyntaxError)return send(400,{error:'Invalid JSON.'});console.warn('[chat] Request failed:', ['NOT_CONFIGURED','QUOTA','PROVIDER_ERROR','TIMEOUT'].includes(err.code)?err.code:(err.name==='TimeoutError'||err.name==='AbortError'?'TIMEOUT':'UNEXPECTED_ERROR'));return send(err.status||503,{error:errorMessages[err.code]||errorMessages.PROVIDER_ERROR});}
 }
